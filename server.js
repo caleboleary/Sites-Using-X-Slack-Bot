@@ -6,14 +6,14 @@ var fs = require('fs');
 	http = require('http');
 	request = require('request');
 	strobe = function() {
-	  return request('http://sites-using-bot.herokuapp.com/', function(e, r, b) {});
+		return request('http://sites-using-bot.herokuapp.com/', function(e, r, b) {});
 	};
 	(function() {
-	  setInterval(strobe, 25 * 60 * 1000);
-	  return console.log("I am up!!");
+		setInterval(strobe, 25 * 60 * 1000);
+		return console.log("I am up!!");
 	})();
 	handle = function(req, res) {
-	  return res.end("42");
+		return res.end("42");
 	};
 	server = http.createServer(handle);
 	server.listen(process.env.PORT || 5000);
@@ -27,6 +27,7 @@ var controller = Botkit.slackbot({
 var bot_name = 'sites_using_bot';
 var admin_reporting = 'U0C472TF0';
 var private_reporting = true;
+var api_key = 'xoxb-49265497734-A64Seq8aDymm6tFqtZYnE46k';
 
 //some functions
 function helpInfo(bot,message) {
@@ -124,17 +125,17 @@ function fetchList(bot, message) {
 
 //start it up!
 controller.spawn({
-	token: 'xoxb-48895617910-juAP2eQv9d7HMkWNSyIdZhLf',
+	token: api_key,
 }).startRTM();
 
 //listeners
-controller.hears(
-	['are you there?'],
-	['direct_message', 'direct_mention', 'mention', 'ambient'],
-	function(bot, message) {
-		bot.reply(message, 'Yes, I\'m here :thebest:');
-	}
-);
+// controller.hears(
+// 	['are you there?'],
+// 	['direct_message', 'direct_mention', 'mention', 'ambient'],
+// 	function(bot, message) {
+// 		bot.reply(message, 'Yes, I\'m here :thebest:');
+// 	}
+// );
 
 controller.hears(
 	['help'],
@@ -146,7 +147,6 @@ controller.hears(
 	['direct_message', 'direct_mention', 'mention', 'ambient'],
 	function(bot, message) {helpInfo(bot, message)}
 );
-
 controller.hears(
 	[''],
 	['direct_message', 'direct_mention', 'mention'],

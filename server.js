@@ -25,7 +25,7 @@ var controller = Botkit.slackbot({
 
 //some vars
 var bot_name = 'sites_using_bot';
-var admin_reporting = 'U0C472TF0';
+var admin_reporting = 'U06GTUMU6';
 var private_reporting = true;
 var api_key = 'xoxb-49265497734-A64Seq8aDymm6tFqtZYnE46k';
 

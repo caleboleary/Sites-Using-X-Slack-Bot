@@ -52,7 +52,7 @@ var api_key = process.env.SLACK_API_KEY;
 function helpInfo(bot,message) {
 	message.unfurl_links = false;
 	message.unfurl_media = false;
-	bot.reply(message, {text:'Sites Using Bot Help:\nThis bot will list examples of sites using different software, themes, or features for others to access and update. For example, mention my name (@sites_using_bot) and say \'listrak\' to see examples of sites who use Listrak for their cart abandonment emails. Here are commands:\nList examples:`@'+bot_name+' FEATURE NAME`\nAdd example:`@'+bot_name+' http://miva.com uses FEATURE` \nList Features:`@'+bot_name+' list features`\n :thebest:', unfurl_links:false, unfurl_media:false});
+	bot.reply(message, {text:'Sites Using Bot Help:\nThis bot will list examples of sites using different software, themes, or features for others to access and update. For example, mention my name (@sites_using_bot) and say \'listrak\' to see examples of sites who use Listrak for their cart abandonment emails. You can talk to the bot in a channel or directly like a real use. Here are some commands:\nList examples:`@'+bot_name+' FEATURE NAME`\nAdd example:`@'+bot_name+' http://miva.com uses FEATURE` \nList Features:`@'+bot_name+' list features`\n :thebest:', unfurl_links:false, unfurl_media:false});
 }
 
 function listFeatures(bot,message) {

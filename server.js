@@ -32,43 +32,6 @@ var featureSchema = new Schema({
 });
 var Feature = mongoose.model('Feature', featureSchema);
 
-//add feature:
-// var addFeature = new Feature({
-// 	name: 'searchspring',
-// 	links:['http://btosports.com','http://kiyonna.com']
-// });
-// addFeature.save(function(err){
-// 	if (err) throw err;
-// 	console.log('feature added to DB');
-// });
-
-//read feature:
-// Feature.find({ name: 'searchspring' }, function(err, feature) {
-// 	if (err) throw err;
-// 	console.log(feature);
-// });
-
-
-//read feature and update
-// Feature.find({ name: 'searchspring' }, function(err, feature) {
-// 	if (err) throw err;
-// 	var newLink = 'http://lotussculpture.com';
-// 	if (feature[0].links.indexOf(newLink) > 0) {
-// 		feature[0].links.push(newLink);		
-// 		feature[0].save(function(err){
-// 			if (err) throw err;
-
-// 			console.log('user successfully updated');
-// 		});
-// 	}
-// });
-
-// //read feature:
-// Feature.find({ name: 'searchspring' }, function(err, feature) {
-// 	if (err) throw err;
-// 	console.log(feature);
-// });
-
 function addFeature(newFeature){
 	var addFeature = new Feature({
 		name: newFeature.name,
@@ -89,7 +52,6 @@ function updateFeature(editedFeature){
 		});
 	});
 }
-
 //-------------------------------------------------------------
 //------------------------------------------------------------------------
 //trying to connect to mongo --------------------------------------------------------
@@ -112,10 +74,10 @@ function helpInfo(bot,message) {
 	bot.reply(message, {text:'Sites Using Bot Help:\nList examples:`@'+bot_name+' FEATURE`\nAdd example:`@'+bot_name+' add http://miva.com uses FEATURE`', unfurl_links:false, unfurl_media:false});
 }
 
-function privateReporting(bot, message){
+function privateReporting(bot, message, feature, example){
 	var pMessage = {user:admin_reporting};
 	bot.startPrivateConversation(pMessage, function(err, conversation){
-		conversation.say('Someone updated the db: ```'+JSON.stringify(message)+'```');
+		conversation.say('Someone updated the db: ```'+JSON.stringify({message, feature, message})+'```');
 	});
 }
 
@@ -138,47 +100,10 @@ function addToDb(feature, example, bot, message){
 			updateFeature(foundFeature[0]);
 			bot.reply(message, {text:'Thanks! I\'ve updated my example links for `'+feature+'` with `'+example+'`', unfurl_links:false, unfurl_media:false});		
 		}
+		 if (private_reporting) {
+			privateReporting(bot, message, feature, example);	
+	    }
 	});
-	// fs.readFile('examples.json', 'utf8', function (err,data) {
-	// 	if (err) {
-	// 		return console.log(err);
-	// 	}
-	// 	else {			
-	// 		data = JSON.parse(data);
-	// 		var found = false;
-	// 		for (var i = 0; i < data.matches.length; i++) {
-	// 			if (data.matches[i].name == feature.toLowerCase()) {
-	// 				found = true;
-	// 				if (data.matches[i].links.indexOf(example) < 0) {
-	// 					data.matches[i].links.push(example);
-	// 				}
-	// 				break;
-	// 			}
-	// 		}
-	// 		if (!found) {
-	// 			data.matches.push({
-	// 				name:feature.toLowerCase(),
-	// 				links:[example]
-	// 			});
-	// 		}
-	// 		fs.writeFile("examples.json", JSON.stringify(data), function(err) {
-	// 		    if(err) {
-	// 		        bot.reply(message, 'Hmm... something went wrong with updating my database.');
-	// 		    }
-	// 		    else {				    	
-	// 			    if (!found) {
-	// 					bot.reply(message, {text:'Thanks! I\'ve added `'+feature+'` to my features list, and added `'+example+'` as the first example.', unfurl_links:false, unfurl_media:false});
-	// 			    }
-	// 			    else {
-	// 					bot.reply(message, {text:'Thanks! I\'ve updated my example links for `'+feature+'` with `'+example+'`', unfurl_links:false, unfurl_media:false});			    	
-	// 			    }
-	// 		    }
-	// 		    if (private_reporting) {
-	// 				privateReporting(bot, message);	
-	// 		    }
-	// 		});
-	// 	}
-	// });	
 }
 
 function fetchList(bot, message) {
@@ -210,13 +135,6 @@ function fetchList(bot, message) {
 		});
 	}
 }
-
-// addToDb('mybuys', 'http://test.com', {}, {});
-// Feature.find({}, function(err, feature) {
-// 	console.log(feature);
-// });
-
-
 
 //start it up!
 controller.spawn({

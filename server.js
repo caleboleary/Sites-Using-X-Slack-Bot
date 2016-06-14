@@ -1,84 +1,37 @@
 var Botkit = require('botkit');
 var fs = require('fs');
 
-// fixing heroku sleep problem
-	var handle, http, request, server, strobe;
-	http = require('http');
-	request = require('request');
-	strobe = function() {
-		return request('http://sites-using-bot.herokuapp.com/', function(e, r, b) {});
-	};
-	(function() {
-		setInterval(strobe, 25 * 60 * 1000);
-		return console.log("I am up!!");
-	})();
-	handle = function(req, res) {
-		return res.end("42");
-	};
-	server = http.createServer(handle);
-	server.listen(process.env.PORT || 5000);
-// fixing heroku sleep problem
+// heroku sleeping fix
+var herokuFix = require('./herokuFix.js');
+herokuFix.fixit();
 
-//trying to connect to mongo --------------------------------------------------------
-//------------------------------------------------------------------------
-//-------------------------------------------------------------
-//define feature type:
-var mongoose = require('mongoose');
-mongoose.connect('mongodb://heroku_qptzk3gw:lrbpadunfm6k749m5i6rhsa8gh@ds011734.mlab.com:11734/heroku_qptzk3gw');
-var Schema = mongoose.Schema;
-var featureSchema = new Schema({
-	name: { type: String, required: true, unique: true },
-	links: Array
-});
-var Feature = mongoose.model('Feature', featureSchema);
+//connect to Mongo
+var mongoConnect = require('./mongoConnect.js');
+mongoConnect.connect();
 
-function addFeature(newFeature){
-	var addFeature = new Feature({
-		name: newFeature.name,
-		links:newFeature.links
-	});
-	addFeature.save(function(err){
-		if (err) throw err;
-		console.log('feature added to DB');
-	});
-}
-function updateFeature(editedFeature){
-	Feature.find({ name: editedFeature.name }, function(err, feature) {
-		if (err) throw err;
-		feature[0].links = editedFeature.links;		
-		feature[0].save(function(err){
-			if (err) throw err;
-			console.log('user successfully updated');
-		});
-	});
-}
-//-------------------------------------------------------------
-//------------------------------------------------------------------------
-//trying to connect to mongo --------------------------------------------------------
-
-
+//controller
 var controller = Botkit.slackbot({
 	debug: true
 });
 
 //some vars
 var bot_name = 'sites_using_bot';
-var admin_reporting = 'U06GTUMU6';
+var admin_reporting = process.env.ADMIN_NOTIFICATION_ID;
 var private_reporting = true;
-var api_key = 'xoxb-49265497734-A64Seq8aDymm6tFqtZYnE46k';
+var api_key = process.env.SLACK_API_KEY;
 
 //some functions
 function helpInfo(bot,message) {
 	message.unfurl_links = false;
 	message.unfurl_media = false;
-	bot.reply(message, {text:'Sites Using Bot Help:\nList examples:`@'+bot_name+' FEATURE`\nAdd example:`@'+bot_name+' http://miva.com uses FEATURE`', unfurl_links:false, unfurl_media:false});
+	bot.reply(message, {text:'Sites Using Bot Help:\nList examples:`@'+bot_name+' FEATURE`\nAdd example:`@'+bot_name+' http://miva.com uses FEATURE` \nList Features:`@'+bot_name+' list features`\n :thebest:', unfurl_links:false, unfurl_media:false});
 }
 
 function listFeatures(bot,message) {
 	Feature.find({}, function(err, feature) {
 		if (err) throw err;
 		var featureList = feature.map(function(arr){return arr.name;});
-		bot.reply(message, 'Here are sites that I have examples for: \n```' + featureList.join('\n') + '```');
+		bot.reply(message, 'Here are features/softwares/themes that I have examples for: \n```' + featureList.join('\n') + '```');
 	});
 }
 
@@ -149,15 +102,14 @@ controller.spawn({
 	token: api_key,
 }).startRTM();
 
-//listeners
-// controller.hears(
-// 	['are you there?'],
-// 	['direct_message', 'direct_mention', 'mention', 'ambient'],
-// 	function(bot, message) {
-// 		bot.reply(message, 'Yes, I\'m here :thebest:');
-// 	}
-// );
-
+// listeners
+controller.hears(
+	['are you there?'],
+	['direct_message', 'direct_mention', 'mention', 'ambient'],
+	function(bot, message) {
+		bot.reply(message, 'Yes, I\'m here :thebest:');
+	}
+);
 controller.hears(
 	['help'],
 	['direct_message', 'direct_mention', 'mention'],

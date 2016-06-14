@@ -71,7 +71,15 @@ var api_key = 'xoxb-49265497734-A64Seq8aDymm6tFqtZYnE46k';
 function helpInfo(bot,message) {
 	message.unfurl_links = false;
 	message.unfurl_media = false;
-	bot.reply(message, {text:'Sites Using Bot Help:\nList examples:`@'+bot_name+' FEATURE`\nAdd example:`@'+bot_name+' add http://miva.com uses FEATURE`', unfurl_links:false, unfurl_media:false});
+	bot.reply(message, {text:'Sites Using Bot Help:\nList examples:`@'+bot_name+' FEATURE`\nAdd example:`@'+bot_name+' http://miva.com uses FEATURE`', unfurl_links:false, unfurl_media:false});
+}
+
+function listFeatures(bot,message) {
+	Feature.find({}, function(err, feature) {
+		if (err) throw err;
+		var featureList = feature.map(function(arr){return arr.name;});
+		bot.reply(message, 'Here are sites that I have examples for: \n```' + featureList.join('\n') + '```');
+	});
 }
 
 function privateReporting(bot, message, feature, example){
@@ -109,7 +117,7 @@ function addToDb(feature, example, bot, message){
 function fetchList(bot, message) {
 	message.unfurl_links = false;
 	message.unfurl_media = false;
-	if (message.text.toLowerCase().indexOf('uses') > -1 && message.text.toLowerCase().indexOf('add') > -1) {
+	if (message.text.toLowerCase().indexOf('uses') > -1) {
 		//Trying to add to db
 		var split = message.text.toLowerCase().replace('add', '').trim().split('uses').map(function(str){return str.trim();});
 		addToDb(split[1], split[0], bot, message);
@@ -159,6 +167,11 @@ controller.hears(
 	['sites using help'],
 	['direct_message', 'direct_mention', 'mention', 'ambient'],
 	function(bot, message) {helpInfo(bot, message)}
+);
+controller.hears(
+	['list features'],
+	['direct_message', 'direct_mention', 'mention'],
+	function(bot, message) {listFeatures(bot,message);}
 );
 controller.hears(
 	[''],

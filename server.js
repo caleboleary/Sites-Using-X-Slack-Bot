@@ -130,13 +130,13 @@ function addToDb(feature, example, bot, message){
 			//add
 			var toAdd = {name:feature, links:[example]};
 			addFeature(toAdd);
-			//bot.reply(message, {text:'Thanks! I\'ve added `'+feature+'` to my features list, and added `'+example+'` as the first example.', unfurl_links:false, unfurl_media:false});
+			bot.reply(message, {text:'Thanks! I\'ve added `'+feature+'` to my features list, and added `'+example+'` as the first example.', unfurl_links:false, unfurl_media:false});
 		}
 		else {
 			foundFeature[0].links.push(example);
 			console.log('ff:',foundFeature[0]);
 			updateFeature(foundFeature[0]);
-			//bot.reply(message, {text:'Thanks! I\'ve updated my example links for `'+feature+'` with `'+example+'`', unfurl_links:false, unfurl_media:false});		
+			bot.reply(message, {text:'Thanks! I\'ve updated my example links for `'+feature+'` with `'+example+'`', unfurl_links:false, unfurl_media:false});		
 		}
 	});
 	// fs.readFile('examples.json', 'utf8', function (err,data) {
@@ -212,16 +212,16 @@ function fetchList(bot, message) {
 }
 
 // addToDb('mybuys', 'http://test.com', {}, {});
-Feature.find({}, function(err, feature) {
-	console.log(feature);
-});
+// Feature.find({}, function(err, feature) {
+// 	console.log(feature);
+// });
 
 
 
 //start it up!
-// controller.spawn({
-// 	token: api_key,
-// }).startRTM();
+controller.spawn({
+	token: api_key,
+}).startRTM();
 
 //listeners
 // controller.hears(

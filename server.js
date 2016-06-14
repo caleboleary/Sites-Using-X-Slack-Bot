@@ -19,6 +19,82 @@ var fs = require('fs');
 	server.listen(process.env.PORT || 5000);
 // fixing heroku sleep problem
 
+//trying to connect to mongo --------------------------------------------------------
+//------------------------------------------------------------------------
+//-------------------------------------------------------------
+//define feature type:
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://heroku_qptzk3gw:lrbpadunfm6k749m5i6rhsa8gh@ds011734.mlab.com:11734/heroku_qptzk3gw');
+var Schema = mongoose.Schema;
+var featureSchema = new Schema({
+	name: { type: String, required: true, unique: true },
+	links: Array
+});
+var Feature = mongoose.model('Feature', featureSchema);
+
+//add feature:
+// var addFeature = new Feature({
+// 	name: 'searchspring',
+// 	links:['http://btosports.com','http://kiyonna.com']
+// });
+// addFeature.save(function(err){
+// 	if (err) throw err;
+// 	console.log('feature added to DB');
+// });
+
+//read feature:
+// Feature.find({ name: 'searchspring' }, function(err, feature) {
+// 	if (err) throw err;
+// 	console.log(feature);
+// });
+
+
+//read feature and update
+// Feature.find({ name: 'searchspring' }, function(err, feature) {
+// 	if (err) throw err;
+// 	var newLink = 'http://lotussculpture.com';
+// 	if (feature[0].links.indexOf(newLink) > 0) {
+// 		feature[0].links.push(newLink);		
+// 		feature[0].save(function(err){
+// 			if (err) throw err;
+
+// 			console.log('user successfully updated');
+// 		});
+// 	}
+// });
+
+// //read feature:
+// Feature.find({ name: 'searchspring' }, function(err, feature) {
+// 	if (err) throw err;
+// 	console.log(feature);
+// });
+
+function addFeature(newFeature){
+	var addFeature = new Feature({
+		name: newFeature.name,
+		links:newFeature.links
+	});
+	addFeature.save(function(err){
+		if (err) throw err;
+		console.log('feature added to DB');
+	});
+}
+function updateFeature(editedFeature){
+	Feature.find({ name: editedFeature.name }, function(err, feature) {
+		if (err) throw err;
+		feature[0].links = editedFeature.links;		
+		feature[0].save(function(err){
+			if (err) throw err;
+			console.log('user successfully updated');
+		});
+	});
+}
+
+//-------------------------------------------------------------
+//------------------------------------------------------------------------
+//trying to connect to mongo --------------------------------------------------------
+
+
 var controller = Botkit.slackbot({
 	debug: true
 });
@@ -49,46 +125,60 @@ function addToDb(feature, example, bot, message){
 	if (example.indexOf('|') > -1){
 		example = example.split('|')[0].replace('<', '');
 	}
-	fs.readFile('examples.json', 'utf8', function (err,data) {
-		if (err) {
-			return console.log(err);
+	Feature.find({name:feature}, function(err, foundFeature) {
+		if (foundFeature.length < 1) {
+			//add
+			var toAdd = {name:feature, links:[example]};
+			addFeature(toAdd);
+			//bot.reply(message, {text:'Thanks! I\'ve added `'+feature+'` to my features list, and added `'+example+'` as the first example.', unfurl_links:false, unfurl_media:false});
 		}
-		else {			
-			data = JSON.parse(data);
-			var found = false;
-			for (var i = 0; i < data.matches.length; i++) {
-				if (data.matches[i].name == feature.toLowerCase()) {
-					found = true;
-					if (data.matches[i].links.indexOf(example) < 0) {
-						data.matches[i].links.push(example);
-					}
-					break;
-				}
-			}
-			if (!found) {
-				data.matches.push({
-					name:feature.toLowerCase(),
-					links:[example]
-				});
-			}
-			fs.writeFile("examples.json", JSON.stringify(data), function(err) {
-			    if(err) {
-			        bot.reply(message, 'Hmm... something went wrong with updating my database.');
-			    }
-			    else {				    	
-				    if (!found) {
-						bot.reply(message, {text:'Thanks! I\'ve added `'+feature+'` to my features list, and added `'+example+'` as the first example.', unfurl_links:false, unfurl_media:false});
-				    }
-				    else {
-						bot.reply(message, {text:'Thanks! I\'ve updated my example links for `'+feature+'` with `'+example+'`', unfurl_links:false, unfurl_media:false});			    	
-				    }
-			    }
-			    if (private_reporting) {
-					privateReporting(bot, message);	
-			    }
-			});
+		else {
+			foundFeature[0].links.push(example);
+			console.log('ff:',foundFeature[0]);
+			updateFeature(foundFeature[0]);
+			//bot.reply(message, {text:'Thanks! I\'ve updated my example links for `'+feature+'` with `'+example+'`', unfurl_links:false, unfurl_media:false});		
 		}
-	});	
+	});
+	// fs.readFile('examples.json', 'utf8', function (err,data) {
+	// 	if (err) {
+	// 		return console.log(err);
+	// 	}
+	// 	else {			
+	// 		data = JSON.parse(data);
+	// 		var found = false;
+	// 		for (var i = 0; i < data.matches.length; i++) {
+	// 			if (data.matches[i].name == feature.toLowerCase()) {
+	// 				found = true;
+	// 				if (data.matches[i].links.indexOf(example) < 0) {
+	// 					data.matches[i].links.push(example);
+	// 				}
+	// 				break;
+	// 			}
+	// 		}
+	// 		if (!found) {
+	// 			data.matches.push({
+	// 				name:feature.toLowerCase(),
+	// 				links:[example]
+	// 			});
+	// 		}
+	// 		fs.writeFile("examples.json", JSON.stringify(data), function(err) {
+	// 		    if(err) {
+	// 		        bot.reply(message, 'Hmm... something went wrong with updating my database.');
+	// 		    }
+	// 		    else {				    	
+	// 			    if (!found) {
+	// 					bot.reply(message, {text:'Thanks! I\'ve added `'+feature+'` to my features list, and added `'+example+'` as the first example.', unfurl_links:false, unfurl_media:false});
+	// 			    }
+	// 			    else {
+	// 					bot.reply(message, {text:'Thanks! I\'ve updated my example links for `'+feature+'` with `'+example+'`', unfurl_links:false, unfurl_media:false});			    	
+	// 			    }
+	// 		    }
+	// 		    if (private_reporting) {
+	// 				privateReporting(bot, message);	
+	// 		    }
+	// 		});
+	// 	}
+	// });	
 }
 
 function fetchList(bot, message) {
@@ -102,14 +192,12 @@ function fetchList(bot, message) {
 	else {
 		//if we're not adding, we must be looking for a feature		
 		var responded = false;
-		fs.readFile('examples.json', 'utf8', function (err,data) {
-			if (err) {
-				return console.log(err);
-			}
-			data = JSON.parse(data);
-			for (var i = 0; i < data.matches.length; i++) {
-				if (message.text.toLowerCase().indexOf(data.matches[i].name)>-1) {
-					bot.reply(message, {text:'Looking for sites using `'+data.matches[i].name+'`? Here you go:\n' +data.matches[i].links.join('\n'), unfurl_links:false, unfurl_media:false});
+		Feature.find({}, function(err, feature) {
+			if (err) throw err;
+			// console.log(feature);
+			for (var i = 0; i < feature.length; i++) {
+				if (message.text.toLowerCase().indexOf(feature[i].name)>-1) {
+					bot.reply(message, {text:'Looking for sites using `'+feature[i].name+'`? Here you go:\n' +feature[i].links.join('\n'), unfurl_links:false, unfurl_media:false});
 					responded = true;
 				}
 			}
@@ -123,10 +211,17 @@ function fetchList(bot, message) {
 	}
 }
 
+// addToDb('mybuys', 'http://test.com', {}, {});
+Feature.find({}, function(err, feature) {
+	console.log(feature);
+});
+
+
+
 //start it up!
-controller.spawn({
-	token: api_key,
-}).startRTM();
+// controller.spawn({
+// 	token: api_key,
+// }).startRTM();
 
 //listeners
 // controller.hears(

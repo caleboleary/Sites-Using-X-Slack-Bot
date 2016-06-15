@@ -6,36 +6,7 @@ var herokuFix = require('./herokuFix.js');
 herokuFix.fixit();
 
 //connect to Mongo
-//define feature type:
-var mongoose = require('mongoose');
-mongoose.connect(process.env.MONGODB_URI);
-var Schema = mongoose.Schema;
-var featureSchema = new Schema({
-	name: { type: String, required: true, unique: true },
-	links: Array
-});
-var Feature = mongoose.model('Feature', featureSchema);
-
-function addFeature(newFeature){
-	var addFeature = new Feature({
-		name: newFeature.name,
-		links:newFeature.links
-	});
-	addFeature.save(function(err){
-		if (err) throw err;
-		console.log('feature added to DB');
-	});
-}
-function updateFeature(editedFeature){
-	Feature.find({ name: editedFeature.name }, function(err, feature) {
-		if (err) throw err;
-		feature[0].links = editedFeature.links;		
-		feature[0].save(function(err){
-			if (err) throw err;
-			console.log('user successfully updated');
-		});
-	});
-}
+var mongoConnect = require('./mongoConnect.js');
 
 //controller
 var controller = Botkit.slackbot({
@@ -56,7 +27,7 @@ function helpInfo(bot,message) {
 }
 
 function listFeatures(bot,message) {
-	Feature.find({}, function(err, feature) {
+	mongoConnect.Feature.find({}, function(err, feature) {
 		if (err) throw err;
 		var featureList = feature.map(function(arr){return arr.name;});
 		bot.reply(message, 'Here are features/softwares/themes that I have examples for: \n```' + featureList.join('\n') + '```');
@@ -76,17 +47,17 @@ function addToDb(feature, example, bot, message){
 	if (example.indexOf('|') > -1){
 		example = example.split('|')[0].replace('<', '');
 	}
-	Feature.find({name:feature}, function(err, foundFeature) {
+	mongoConnect.Feature.find({name:feature}, function(err, foundFeature) {
 		if (foundFeature.length < 1) {
 			//add
 			var toAdd = {name:feature, links:[example]};
-			addFeature(toAdd);
+			mongoConnect.addFeature(toAdd);
 			bot.reply(message, {text:'Thanks! I\'ve added `'+feature+'` to my features list, and added `'+example+'` as the first example.', unfurl_links:false, unfurl_media:false});
 		}
 		else {
 			foundFeature[0].links.push(example);
 			console.log('ff:',foundFeature[0]);
-			updateFeature(foundFeature[0]);
+			mongoConnect.updateFeature(foundFeature[0]);
 			bot.reply(message, {text:'Thanks! I\'ve updated my example links for `'+feature+'` with `'+example+'`', unfurl_links:false, unfurl_media:false});		
 		}
 		 if (private_reporting) {
@@ -106,7 +77,7 @@ function fetchList(bot, message) {
 	else {
 		//if we're not adding, we must be looking for a feature		
 		var responded = false;
-		Feature.find({}, function(err, feature) {
+		mongoConnect.Feature.find({}, function(err, feature) {
 			if (err) throw err;
 			// console.log(feature);
 			for (var i = 0; i < feature.length; i++) {
@@ -141,12 +112,12 @@ controller.hears(
 controller.hears(
 	['help'],
 	['direct_message', 'direct_mention', 'mention'],
-	function(bot, message) {helpInfo(bot, message)}
+	function(bot, message) {helpInfo(bot, message);}
 );
 controller.hears(
 	['sites using help'],
 	['direct_message', 'direct_mention', 'mention', 'ambient'],
-	function(bot, message) {helpInfo(bot, message)}
+	function(bot, message) {helpInfo(bot, message);}
 );
 controller.hears(
 	['list features'],

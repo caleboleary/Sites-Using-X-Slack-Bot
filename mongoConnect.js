@@ -12,7 +12,7 @@ var mongoConnect = {};
 mongoConnect.Feature = mongoose.model('Feature', featureSchema);
 
 mongoConnect.addFeature = function(newFeature){
-	var addFeature = new Feature({
+	var addFeature = new mongoConnect.Feature({
 		name: newFeature.name,
 		links:newFeature.links
 	});
@@ -23,7 +23,7 @@ mongoConnect.addFeature = function(newFeature){
 };
 
 mongoConnect.updateFeature = function(editedFeature){
-	Feature.find({ name: editedFeature.name }, function(err, feature) {
+	mongoConnect.Feature.find({ name: editedFeature.name }, function(err, feature) {
 		if (err) throw err;
 		feature[0].links = editedFeature.links;		
 		feature[0].save(function(err){

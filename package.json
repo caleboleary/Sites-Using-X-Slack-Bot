@@ -1,8 +1,8 @@
 {
-  "name": "nodejs-slack-bot",
+  "name": "sites-using",
   "version": "1.0.0",
-  "description": "Simple Slack bot using NodeJS",
-  "main": "index.js",
+  "description": "Sites Using Slack Bot",
+  "main": "server.js",
   "dependencies": {
     "botkit": "0.0.15",
     "http": "0.0.0",
@@ -13,13 +13,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
-    "type": "git",
-    "url": "git+https://github.com/codeaholicguy/nodejs-slack-bot.git"
+    "type": "git"
   },
-  "author": "codeaholicguy",
+  "author": "caleboleary",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/codeaholicguy/nodejs-slack-bot/issues"
-  },
-  "homepage": "https://github.com/codeaholicguy/nodejs-slack-bot#readme"
+  "homepage": "https://github.com/caleboleary"
 }

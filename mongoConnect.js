@@ -18,7 +18,6 @@ mongoConnect.addFeature = function(newFeature){
 	});
 	addFeature.save(function(err){
 		if (err) throw err;
-		console.log('feature added to DB');
 	});
 };
 
@@ -28,7 +27,6 @@ mongoConnect.updateFeature = function(editedFeature){
 		feature[0].links = editedFeature.links;		
 		feature[0].save(function(err){
 			if (err) throw err;
-			console.log('user successfully updated');
 		});
 	});
 };

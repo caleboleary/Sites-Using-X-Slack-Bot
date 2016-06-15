@@ -1,17 +1,17 @@
 var Botkit = require('botkit');
 var fs = require('fs');
 
+//controller
+var controller = Botkit.slackbot({
+	debug: true
+});
+
 // heroku sleeping fix
 var herokuFix = require('./herokuFix.js');
 herokuFix.fixit();
 
 //connect to Mongo
 var mongoConnect = require('./mongoConnect.js');
-
-//controller
-var controller = Botkit.slackbot({
-	debug: true
-});
 
 //some vars
 var bot_name = 'sites_using_bot';
@@ -56,7 +56,6 @@ function addToDb(feature, example, bot, message){
 		}
 		else {
 			foundFeature[0].links.push(example);
-			console.log('ff:',foundFeature[0]);
 			mongoConnect.updateFeature(foundFeature[0]);
 			bot.reply(message, {text:'Thanks! I\'ve updated my example links for `'+feature+'` with `'+example+'`', unfurl_links:false, unfurl_media:false});		
 		}
@@ -79,7 +78,6 @@ function fetchList(bot, message) {
 		var responded = false;
 		mongoConnect.Feature.find({}, function(err, feature) {
 			if (err) throw err;
-			// console.log(feature);
 			for (var i = 0; i < feature.length; i++) {
 				if (message.text.toLowerCase().indexOf(feature[i].name)>-1) {
 					bot.reply(message, {text:'Looking for sites using `'+feature[i].name+'`? Here you go:\n' +feature[i].links.join('\n'), unfurl_links:false, unfurl_media:false});
